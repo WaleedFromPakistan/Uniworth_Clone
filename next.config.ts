@@ -12,7 +12,6 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'superb-freedom-1e5f2d4367.strapiapp.com',
-        port: '1337',
         pathname: '/uploads/**',
       },
     ],
