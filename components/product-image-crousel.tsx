@@ -52,7 +52,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
 
   if (images.length === 0) {
     return (
-      <div className="relative aspect-square overflow-hidden bg-gray-50 flex items-center justify-center">
+      <div className="relative aspect-[4/5] overflow-hidden bg-gray-50 flex items-center justify-center border border-gray-200">
         <p className="text-gray-500">No images available</p>
       </div>
     )
@@ -61,7 +61,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
   return (
     <div className="space-y-4">
       {/* Main image */}
-      <div className="relative aspect-square overflow-hidden bg-white border border-gray-200">
+      <div className="relative aspect-[4/5] overflow-hidden bg-white border border-gray-200 rounded-sm">
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-gray-50 z-10">
             <div className="w-8 h-8 border-4 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -72,7 +72,7 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
           alt={`${productName} - image ${currentIndex + 1}`}
           fill
           sizes="(max-width: 768px) 100vw, 50vw"
-          className={`object-contain object-center p-8 transition-opacity duration-300 ${
+          className={`object-contain object-center p-6 transition-opacity duration-300 ${
             isLoading ? "opacity-0" : "opacity-100"
           }`}
           priority
@@ -86,8 +86,8 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
         {images.map((image, index) => (
           <button
             key={image.id}
-            className={`relative w-16 h-16 flex-shrink-0 overflow-hidden border-2 ${
-              currentIndex === index ? "border-black" : "border-gray-200"
+            className={`relative w-20 h-20 flex-shrink-0 overflow-hidden border-2 rounded-sm transition-all duration-200 ${
+              currentIndex === index ? "border-black shadow-sm" : "border-gray-200 hover:border-gray-300"
             }`}
             onClick={() => goToSlide(index)}
           >
@@ -95,8 +95,8 @@ export default function ProductImageCarousel({ images, productName }: ProductIma
               src={getThumbnailUrl(image) || "/placeholder.svg"}
               alt={`${productName} - thumbnail ${index + 1}`}
               fill
-              sizes="64px"
-              className="object-contain object-center p-1"
+              sizes="80px"
+              className="object-contain object-center p-2"
             />
           </button>
         ))}
