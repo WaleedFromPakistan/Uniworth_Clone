@@ -7,16 +7,22 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    domains: ['superb-freedom-1e5f2d4367.strapiapp.com'], // Allow images from localhost (Strapi backend)
     remotePatterns: [
       {
         protocol: 'https',
         hostname: 'superb-freedom-1e5f2d4367.strapiapp.com',
-        pathname: '/uploads/**',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'superb-freedom-1e5f2d4367.media.strapiapp.com',
+        port: '',
+        pathname: '/**',
       },
     ],
     unoptimized: true,
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
