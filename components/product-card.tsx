@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useCallback } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import type { Product, ProductImage } from "@/types/product"
@@ -12,99 +12,84 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isHovering, setIsHovering] = useState(false)
 
-  // Handle both API response formats
-  let images: ProductImage[] = []
+  // Memoized handlers to avoid re-creation on each render
+  const handleMouseEnter = useCallback(() => setIsHovering(true), [])
+  const handleMouseLeave = useCallback(() => setIsHovering(false), [])
 
-  if (product.attributes?.image?.data) {
-    // Standard Strapi format
-    images = product.attributes.image.data
-  } else if (product.image) {
-    // Alternative format from the API
-    images = product.image
-  }
+  // Normalize images from different API responses
+  const images: ProductImage[] =
+    product.attributes?.image?.data ??
+    product.image ??
+    []
 
-  // Get main and hover images with fallbacks
-  const mainImage = images[0] || null
-  const hoverImage = images[1] || mainImage
+  const mainImage = images[0] ?? null
+  const hoverImage = images[1] ?? mainImage
 
-  // Get image URL with proper error handling
-  const getImageUrl = (image: ProductImage | null) => {
-    if (!image) return "/placeholder.svg"
-
-    // Handle different image URL formats
+  // Helper for image URL fallback & prefixing
+  const getImageUrl = (image: ProductImage | null): string => {
+    if (!image?.url) return "/placeholder.svg"
     const url = image.url
-    if (!url) return "/placeholder.svg"
-
-    // Return full URL if it's already absolute, otherwise prepend the API base URL
-    return url.startsWith("http") || url.startsWith("/placeholder") ? url : `http://localhost:1337${url}`
+    return url.startsWith("http") || url.startsWith("/placeholder") 
+      ? url 
+      : `http://localhost:1337${url}`
   }
 
-  // Get product name from either format
-  const productName = product.attributes?.itemName || product.itemName || "Unnamed Product"
+  // Extract product details safely
+  const productName = product.attributes?.itemName ?? product.itemName ?? "Unnamed Product"
+  const productPrice = product.attributes?.price ?? product.price ?? "N/A"
+  const productOldPrice = product.attributes?.oldPrice ?? product.oldPrice ?? null
+  const productUrlId = product.documentId ?? product.id ?? ""
 
-  // Get product price from either format
-  const productPrice = product.attributes?.price || product.price || "N/A"
-
-  // Get product old price from either format
-  const productOldPrice = product.attributes?.oldPrice || product.oldPrice || null
-
-  // Get product ID or documentId for the URL
-  const productUrlId = product.documentId || product.id || product.documentId || product.id
-
-  // Check if product is on sale
-  const isOnSale = !!productOldPrice
+  const isOnSale = Boolean(productOldPrice)
 
   return (
-    <Link href={`/products/${productUrlId}`} className="group block">
-      <div className="relative bg-white border border-gray-100  h-full rounded-sm overflow-hidden">
-        {/* Sale tag */}
+    <Link href={`/products/${productUrlId}`} className="group block" aria-label={`View details for ${productName}`}>
+      <div className="relative bg-white border border-gray-100 h-full rounded-sm overflow-hidden">
+        {/* Sale badge */}
         {isOnSale && (
-          <div className="absolute top-0 left-3 z-10 bg-red-500 text-white text-xs font-bold py-1 px-2 rotate-[-45deg] translate-x-[-30%] translate-y-[30%] shadow-sm">
+          <div
+            aria-label="Sale"
+            className="absolute top-0 left-3 z-10 bg-red-500 text-white text-xs font-bold py-1 px-2 rotate-[-45deg] translate-x-[-30%] translate-y-[30%] shadow-sm"
+          >
             SALE
           </div>
         )}
 
-        {/* Product image container */}
+        {/* Image container with event handlers */}
         <div
           className="relative aspect-[4/5] overflow-hidden bg-gray-50"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
+          onMouseEnter={handleMouseEnter}
+          onMouseLeave={handleMouseLeave}
         >
           {/* Main image */}
-          <div
-            className={`absolute inset-0 transition-opacity duration-300 ${isHovering ? "opacity-0" : "opacity-100"}`}
-          >
-            <Image
-              src={getImageUrl(mainImage) || "/placeholder.svg"}
-              alt={productName}
-              fill
-              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-contain object-center p-4"
-              priority={false}
-            />
-          </div>
+          <Image
+            src={getImageUrl(mainImage)}
+            alt={productName}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className={`object-contain object-center p-4 transition-opacity duration-300 ease-in-out ${isHovering ? "opacity-0" : "opacity-100"}`}
+            priority={false} // Set false to defer loading (could be true for first few items)
+            loading="lazy"
+            style={{ willChange: "opacity" }}
+          />
 
           {/* Hover image */}
           {hoverImage && (
-            <div
-              className={`absolute inset-0 transition-opacity duration-300 ${isHovering ? "opacity-100" : "opacity-0"}`}
-            >
-              <Image
-                src={getImageUrl(hoverImage) || "/placeholder.svg"}
-                alt={`${productName} - alternate view`}
-                fill
-                sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-contain object-center p-4"
-                loading="lazy"
-              />
-            </div>
+            <Image
+              src={getImageUrl(hoverImage)}
+              alt={`${productName} - alternate view`}
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className={`object-contain object-center p-4 transition-opacity duration-300 ease-in-out absolute inset-0 ${isHovering ? "opacity-100" : "opacity-0"}`}
+              loading="lazy"
+              style={{ willChange: "opacity" }}
+            />
           )}
 
           {/* Quick view overlay */}
           <div
-            className={`absolute inset-x-0 bottom-0 bg-black bg-opacity-70 text-white py-2 text-center text-xs font-medium transition-all duration-300 transform ${
-              isHovering ? "translate-y-0" : "translate-y-full"
-            }`}
+            className={`absolute inset-x-0 bottom-0 bg-black bg-opacity-70 text-white py-2 text-center text-xs font-medium transition-transform duration-300 ease-in-out transform ${isHovering ? "translate-y-0" : "translate-y-full"}`}
+            aria-hidden="true"
           >
             Quick View
           </div>
