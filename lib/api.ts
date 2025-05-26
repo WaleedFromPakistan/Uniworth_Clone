@@ -160,4 +160,87 @@ export async function getProductById(id: number): Promise<Product | null> {
     console.error(`Failed to fetch product with ID ${id}:`, error)
     return null
   }
+}export interface ImageFormat {
+  ext: string
+  url: string
+  hash: string
+  mime: string
+  name: string
+  path: string | null
+  size: number
+  width: number
+  height: number
+  sizeInBytes: number
+}
+
+export interface ImageFormats {
+  large?: ImageFormat
+  medium?: ImageFormat
+  small?: ImageFormat
+  thumbnail?: ImageFormat
+}
+
+export interface HeroImage {
+  id: number
+  documentId: string
+  name: string
+  alternativeText: string | null
+  caption: string | null
+  width: number
+  height: number
+  formats: ImageFormats
+  hash: string
+  ext: string
+  mime: string
+  size: number
+  url: string
+  previewUrl: string | null
+  provider: string
+  provider_metadata: unknown
+  createdAt: string
+  updatedAt: string
+  publishedAt: string
+}
+
+export interface HeroData {
+  id: number
+  documentId: string
+  createdAt: string
+  updatedAt: string
+  publishedAt: string
+  images: HeroImage[]
+}
+
+export interface ApiResponse {
+  data: HeroData[]
+  meta: {
+    pagination: {
+      page: number
+      pageSize: number
+      pageCount: number
+      total: number
+    }
+  }
+}
+
+export async function fetchHeroes(): Promise<HeroImage[]> {
+  try {
+    const response = await fetch("https://superb-freedom-1e5f2d4367.strapiapp.com/api/heroes?populate=*")
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+
+    const data: ApiResponse = await response.json()
+
+    // Extract all images from the first hero entry
+    if (data.data.length > 0 && data.data[0].images) {
+      return data.data[0].images
+    }
+
+    return []
+  } catch (error) {
+    console.error("Error fetching heroes:", error)
+    return []
+  }
 }

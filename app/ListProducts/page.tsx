@@ -7,10 +7,10 @@ export default async function PoloShirtsPage() {
 
   return (
     <div className="bg-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
+      <div className="max-w-7xl mx-auto mt-[5%] px-4 sm:px-6 lg:px-8 py-10 sm:py-12">
         
         {/* Page title */}
-        <div className="text-center mb-8 sm:mb-10">
+        {/* <div className="text-center mb-8 sm:mb-10">
           <h1 className="text-2xl sm:text-3xl font-serif font-medium text-gray-900">
             Polo T-Shirts
           </h1>
@@ -18,7 +18,7 @@ export default async function PoloShirtsPage() {
             Our polo shirts are the go-to choice for all seasons and an absolute wardrobe essential.
             Made with premium pique fabric for comfort and durability.
           </p>
-        </div>
+        </div> */}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 sm:mb-8 border-b border-gray-200 pb-4">

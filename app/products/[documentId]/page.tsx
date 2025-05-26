@@ -35,7 +35,7 @@ export default async function ProductDetailPage({ params }: { params: { document
 // 🔹 Extracted fallback UI components
 function NotFound() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 text-center">
+    <div className="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8 py-12 text-center">
       <h1 className="text-2xl font-medium text-gray-900">Product not found</h1>
       <p className="mt-2 text-gray-500">
         The product you are looking for does not exist or has been removed.
@@ -69,7 +69,7 @@ function BackLink() {
 // ✅ Keep lightweight skeleton with reduced div depth and minimal DOM nodes
 function ProductDetailSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse space-y-6">
+    <div className="max-w-7xl   mx-auto px-4 sm:px-6 lg:px-8 py-12 animate-pulse space-y-6">
       <div className="h-4 w-32 bg-gray-200 rounded" />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="space-y-4">

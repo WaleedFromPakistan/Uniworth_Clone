@@ -49,7 +49,7 @@ export default function ProductDetailClient({ product }: ProductDetailClientProp
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+    <div className="max-w-7xl mx-auto mt-[6%] px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
       {/* Breadcrumb */}
       <nav className="mb-4 sm:mb-6">
         <Link href="/" className="text-gray-500 hover:text-gray-900 flex items-center text-sm">
