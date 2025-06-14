@@ -48,7 +48,7 @@ export default function Hero() {
   // Auto-slide every 3 seconds
   useEffect(() => {
     if (slides.length > 0) {
-      const timer = setInterval(nextSlide, 3000)
+      const timer = setInterval(nextSlide, 10000)
       return () => clearInterval(timer)
     }
   }, [slides.length])

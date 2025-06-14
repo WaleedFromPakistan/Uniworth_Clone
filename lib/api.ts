@@ -244,3 +244,116 @@ export async function fetchHeroes(): Promise<HeroImage[]> {
     return []
   }
 }
+
+// API utility functions for fetching data from Strapi
+export interface StrapiImage {
+  id: number
+  documentId: string
+  name: string
+  alternativeText: string | null
+  caption: string | null
+  width: number
+  height: number
+  formats: {
+    small?: {
+      ext: string
+      url: string
+      hash: string
+      mime: string
+      name: string
+      path: string | null
+      size: number
+      width: number
+      height: number
+      sizeInBytes: number
+    }
+    thumbnail?: {
+      ext: string
+      url: string
+      hash: string
+      mime: string
+      name: string
+      path: string | null
+      size: number
+      width: number
+      height: number
+      sizeInBytes: number
+    }
+  }
+  hash: string
+  ext: string
+  mime: string
+  size: number
+  url: string
+  previewUrl: string | null
+  provider: string
+  provider_metadata: unknown
+  createdAt: string
+  updatedAt: string
+  publishedAt: string
+}
+
+export interface Products {
+  id: number
+  documentId: string
+  itemName: string
+  description: string | null
+  price: string
+  size: string
+  oldPrice: string
+  createdAt: string
+  updatedAt: string
+  publishedAt: string
+  image: StrapiImage[]
+}
+
+export interface NewArrivalsResponse {
+  data: Products[]
+  meta: {
+    pagination: {
+      page: number
+      pageSize: number
+      pageCount: number
+      total: number
+    }
+  }
+}
+
+//const STRAPI_BASE_URL = "https://superb-freedom-1e5f2d4367.strapiapp.com"
+
+export async function fetchNewArrivals(): Promise<Products[]> {
+  try {
+    const response = await fetch("https://superb-freedom-1e5f2d4367.strapiapp.com/api/new-arrivals?populate=*", {
+      next: { revalidate: 3600 }, // Revalidate every hour
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch new arrivals: ${response.status}`)
+    }
+
+    const data: NewArrivalsResponse = await response.json()
+    return data.data
+  } catch (error) {
+    console.error("Error fetching new arrivals:", error)
+    return []
+  }
+}
+
+export function getImageUrl(image: StrapiImage): string {
+  // Use small format if available, otherwise use original
+  if (image.formats?.small?.url) {
+    return image.formats.small.url
+  }
+  return image.url
+}
+
+export function parsePrice(priceString: string): number {
+  // Remove "Rs." and commas, then convert to number
+  return Number.parseFloat(priceString.replace(/Rs\.|,/g, ""))
+}
+
+export function calculateDiscount(price: string, oldPrice: string): number {
+  const currentPrice = parsePrice(price)
+  const originalPrice = parsePrice(oldPrice)
+  return Math.round(((originalPrice - currentPrice) / originalPrice) * 100)
+}
