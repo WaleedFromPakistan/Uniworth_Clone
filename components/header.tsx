@@ -71,7 +71,7 @@ export default function Header() {
             
             <div className="flex items-center bg-white gap-2">
               <User className={`w-4 h-4 text-gray-600`} />
-              <span className={`hidden sm:inline text-gray-600 animate-marquee`}>My Account</span>
+              <span className={`hidden sm:inline text-gray-600 `}>My Account</span>
               <span className={`sm:hidden text-gray-600`}>Account</span>
             </div>
           </div>

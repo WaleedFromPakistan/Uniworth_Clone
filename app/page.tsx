@@ -1,3 +1,5 @@
+import Banner from "@/components/banner";
+import FeaturesSection from "@/components/feature-section";
 import Hero from "@/components/hero";
 import NewArrivals from "@/components/new-arrival";
 import { getHomePageData } from "@/lib/home-data";
@@ -42,6 +44,8 @@ export default async function HomePage() {
         </section>
       </main>
       <NewArrivals />
+      <Banner/>
+      <FeaturesSection/>
     </>
   );
 }

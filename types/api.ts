@@ -1,11 +1,16 @@
-import type { Product, ProductsResponse, StrapiImage } from "@/types/product";
-import type { Category } from "@/types/Category";
+import type { Product, ProductsResponse } from "@/types/product";
+//import type { Category } from "@/types/Category";
+import type { HomeCategory } from "@/types/homepage"; // Importing the homepage type
 
 const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 if (!baseURL) {
   throw new Error("Missing NEXT_PUBLIC_API_BASE_URL in environment variables");
 }
+
+// -------------------------------------
+// PRODUCT APIs
+// -------------------------------------
 
 interface RawStrapiProduct {
   id: number;
@@ -18,7 +23,7 @@ interface RawStrapiProduct {
   createdAt: string;
   updatedAt: string;
   publishedAt: string;
-  image: StrapiImage[];
+  image: Product["image"];
 }
 
 interface RawProductsResponse {
@@ -96,16 +101,25 @@ export async function getProductById(documentId: string): Promise<Product | null
   }
 }
 
-export async function getHomePageData(): Promise<Category[]> {
+// -------------------------------------
+// HOMEPAGE DATA API
+// -------------------------------------
+
+
+export async function getHomePageData(): Promise<HomeCategory[]> {
   try {
     const res = await fetch(`${baseURL}/api/homes?populate=*`, {
       next: { revalidate: 60 },
     });
+
+    if (!res.ok) {
+      throw new Error(`API error: ${res.status}`);
+    }
+
     const json = await res.json();
-    console.log(res);
-    return json?.data ?? [];
+    return json.data as HomeCategory[];
   } catch (error) {
-    console.error("Error fetching categories:", error);
+    console.error("Error fetching home page data:", error);
     return [];
   }
 }

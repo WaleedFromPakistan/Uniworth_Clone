@@ -1,79 +1,67 @@
 export interface ImageFormat {
-  name: string
-  hash: string
-  ext: string
-  mime: string
-  path: string | null
-  width: number
-  height: number
-  size: number
-  sizeInBytes?: number
-  url: string
+  ext: string;
+  url: string;
+  hash: string;
+  mime: string;
+  name: string;
+  path: string | null;
+  size: number;
+  width: number;
+  height: number;
+  sizeInBytes: number;
 }
 
-export interface ProductImage {
-  id: number
-  documentId?: string
-  name: string
-  alternativeText: string | null
-  caption: string | null
-  width: number
-  height: number
-  formats: {
-    thumbnail: ImageFormat
-    small: ImageFormat
-    medium?: ImageFormat
-    large?: ImageFormat
-  }
-  hash: string
-  ext: string
-  mime: string
-  size: number
-  url: string
-  previewUrl: string | null
-  provider: string
-  provider_metadata: unknown
-  createdAt: string
-  updatedAt: string
-  publishedAt: string
+export interface ImageFormats {
+  large?: ImageFormat;
+  medium?: ImageFormat;
+  small?: ImageFormat;
+  thumbnail?: ImageFormat;
+}
+
+export interface StrapiImage {
+  id: number;
+  name: string;
+  alternativeText: string | null;
+  caption: string | null;
+  width: number;
+  height: number;
+  formats: ImageFormats;
+  hash: string;
+  ext: string;
+  mime: string;
+  size: number;
+  url: string;
+  previewUrl: string | null;
+  provider: string;
+  provider_metadata: unknown;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  documentId?: string;
 }
 
 export interface Product {
-  id: number
-  documentId?: string
-  attributes?: {
-    itemName: string
-    description: string
-    price: string
-    size: string
-    createdAt: string
-    updatedAt: string
-    publishedAt: string
-    oldPrice: string | null
-    image: {
-      data: ProductImage[]
-    }
-  }
-  // Direct properties for the alternative API response format
-  itemName?: string
-  description?: string
-  price?: string
-  size?: string
-  createdAt?: string
-  updatedAt?: string
-  publishedAt?: string
-  oldPrice?: string | null
-  image?: ProductImage[]
+  id: number;
+  documentId: string;
+  itemName: string;
+  description: string | null;
+  price: string;
+  oldPrice?: string;
+  size: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  image: StrapiImage[];
 }
 
 export interface ProductsResponse {
-  data: Product[]
+  data: Product[];
   meta: {
     pagination: {
-      page: number
-      pageSize: number
-      pageCount: number
-      total: number
-    }
-  }
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
 }

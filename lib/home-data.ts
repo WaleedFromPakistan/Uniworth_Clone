@@ -1,65 +1,74 @@
+// Environment variables
+const baseURL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const baseMediaUrl = process.env.NEXT_PUBLIC_MEDIA_BASE_URL || baseURL || "";
+
+// Safety check
+if (!baseURL) {
+  throw new Error("Missing NEXT_PUBLIC_API_BASE_URL in environment variables");
+}
+
 // Strapi API response interfaces
 export interface StrapiImage {
-  id: number
-  documentId: string
-  name: string
-  alternativeText: string | null
-  caption: string | null
-  width: number
-  height: number
+  id: number;
+  documentId: string;
+  name: string;
+  alternativeText: string | null;
+  caption: string | null;
+  width: number;
+  height: number;
   formats?: {
-    thumbnail?: { url: string; width: number; height: number }
-    small?: { url: string; width: number; height: number }
-    medium?: { url: string; width: number; height: number }
-    large?: { url: string; width: number; height: number }
-  }
-  hash: string
-  ext: string
-  mime: string
-  size: number
-  url: string
-  previewUrl: string | null
-  provider: string
-  provider_metadata: unknown
-  createdAt: string
-  updatedAt: string
-  publishedAt: string
+    thumbnail?: { url: string; width: number; height: number };
+    small?: { url: string; width: number; height: number };
+    medium?: { url: string; width: number; height: number };
+    large?: { url: string; width: number; height: number };
+  };
+  hash: string;
+  ext: string;
+  mime: string;
+  size: number;
+  url: string;
+  previewUrl: string | null;
+  provider: string;
+  provider_metadata: unknown;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
 }
 
 export interface StrapiHomeItem {
-  id: number
-  documentId: string
-  title: string
-  subtitle?: string
-  buttonText?: string
-  description?: string
-  link?: string
-  createdAt: string
-  updatedAt: string
-  publishedAt: string
-  image?: StrapiImage | null
+  id: number;
+  documentId: string;
+  title: string;
+  subtitle?: string;
+  buttonText?: string;
+  description?: string;
+  link?: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  image?: StrapiImage | null;
 }
 
 export interface StrapiHomeResponse {
-  data: StrapiHomeItem[]
+  data: StrapiHomeItem[];
   meta: {
     pagination: {
-      page: number
-      pageSize: number
-      pageCount: number
-      total: number
-    }
-  }
+      page: number;
+      pageSize: number;
+      pageCount: number;
+      total: number;
+    };
+  };
 }
 
 export interface CategoryCard {
-  id: string
-  title: string
-  subtitle: string
-  buttonText: string
-  image: string
-  link: string
-  description: string
+  id: string;
+  title: string;
+  subtitle: string;
+  buttonText: string;
+  image: string;
+  link: string;
+  description: string;
 }
 
 /**
@@ -68,25 +77,20 @@ export interface CategoryCard {
  */
 function getStrapiImageUrl(imageData: StrapiImage | null): string {
   if (!imageData?.url) {
-    return "/placeholder.svg?height=600&width=400"
+    return "/placeholder.svg?height=600&width=400";
   }
 
-  const url = imageData.url.trim()
-  const baseMediaUrl = "https://superb-freedom-1e5f2d4367.media.strapiapp.com"
+  const url = imageData.url.trim();
 
   if (url.startsWith("http")) {
-    return url
+    return url;
   }
 
-  // Ensure there's exactly one slash between base URL and relative path
-  return url.startsWith("/")
-    ? baseMediaUrl + url
-    : `${baseMediaUrl}/${url}`
+  return `${baseMediaUrl.replace(/\/$/, "")}/${url.replace(/^\//, "")}`;
 }
 
 /**
  * Fetches home page categories from Strapi, transforms to CategoryCard.
- * Includes a 10-second timeout and fallback data on failure.
  */
 export async function getHomePageData(): Promise<CategoryCard[]> {
   const fallbackData: CategoryCard[] = [
@@ -97,7 +101,8 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
       buttonText: "Shop Now",
       image: "/placeholder.svg?height=600&width=400&text=Polo+Shirts",
       link: "/ListProducts",
-      description: "Discover our premium polo shirt collection made with finest materials",
+      description:
+        "Discover our premium polo shirt collection made with finest materials",
     },
     {
       id: "formal-shirts-fallback",
@@ -117,27 +122,27 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
       link: "/casual-wear",
       description: "Comfortable casual wear for your daily lifestyle",
     },
-  ]
+  ];
 
   try {
-    const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 10000)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-    const response = await fetch(
-      "https://superb-freedom-1e5f2d4367.strapiapp.com/api/homes?populate=*",
-      {
-        cache: "no-store",
-        signal: controller.signal,
-        headers: { "Content-Type": "application/json" },
+    const response = await fetch(`${baseURL}/api/homes?populate=*`, {
+      cache: "no-store",
+      signal: controller.signal,
+      headers: {
+        "Content-Type": "application/json",
       },
-    )
-    clearTimeout(timeoutId)
+    });
+
+    clearTimeout(timeoutId);
 
     if (!response.ok) {
-      throw new Error(`API error: ${response.status} ${response.statusText}`)
+      throw new Error(`API error: ${response.status} ${response.statusText}`);
     }
 
-    const data: StrapiHomeResponse = await response.json()
+    const data: StrapiHomeResponse = await response.json();
 
     return data.data.map((item) => ({
       id: item.documentId ?? item.id.toString(),
@@ -149,14 +154,14 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
       description:
         item.description ??
         `Discover our premium ${item.title?.toLowerCase() ?? "collection"} made with finest materials`,
-    }))
+    }));
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      console.error("Request timed out or aborted")
+      console.error("Request timed out or aborted");
     } else {
-      console.error("Failed to fetch home page data:", error)
+      console.error("Failed to fetch home page data:", error);
     }
-    return fallbackData
+    return fallbackData;
   }
 }
 
@@ -166,17 +171,17 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
  */
 export async function getFeaturedCategory(): Promise<CategoryCard | null> {
   try {
-    const categories = await getHomePageData()
+    const categories = await getHomePageData();
     const featured =
       categories.find(
         (cat) =>
           cat.title.toLowerCase().includes("polo") ||
-          cat.link.toLowerCase().includes("listproducts"),
-      ) ?? categories[0] ?? null
+          cat.link.toLowerCase().includes("listproducts")
+      ) ?? categories[0] ?? null;
 
-    return featured
+    return featured;
   } catch (error) {
-    console.error("Failed to get featured category:", error)
-    return null
+    console.error("Failed to get featured category:", error);
+    return null;
   }
 }

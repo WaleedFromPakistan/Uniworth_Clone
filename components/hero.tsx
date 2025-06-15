@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import { fetchHeroes, type HeroImage } from "@/lib/api"
+import { fetchHeroes, type HeroImage } from "@/lib/heroes"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
 export default function Hero() {
@@ -11,12 +11,12 @@ export default function Hero() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch heroes data on component mount
   useEffect(() => {
     const loadSlides = async () => {
       try {
         setLoading(true)
         const heroImages = await fetchHeroes()
+
         if (heroImages.length > 0) {
           setSlides(heroImages)
         } else {
@@ -45,7 +45,6 @@ export default function Hero() {
     }
   }
 
-  // Auto-slide every 3 seconds
   useEffect(() => {
     if (slides.length > 0) {
       const timer = setInterval(nextSlide, 10000)
@@ -53,7 +52,6 @@ export default function Hero() {
     }
   }, [slides.length])
 
-  // Loading state
   if (loading) {
     return (
       <section className="relative h-screen overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -65,7 +63,6 @@ export default function Hero() {
     )
   }
 
-  // Error state
   if (error || slides.length === 0) {
     return (
       <section className="relative h-screen overflow-hidden bg-gray-100 flex items-center justify-center">
@@ -78,26 +75,29 @@ export default function Hero() {
 
   const currentImage = slides[currentSlide]
 
-  // Get the best available image URL (prefer large, fallback to original)
   const getImageUrl = (image: HeroImage) => {
-    if (image.formats?.large?.url) {
-      return image.formats.large.url
-    }
-    if (image.formats?.medium?.url) {
-      return image.formats.medium.url
-    }
-    return image.url
+    return (
+      image.formats?.large?.url ||
+      image.formats?.medium?.url ||
+      image.url || // fallback to original image
+      "/placeholder.svg"
+    )
   }
-
- 
 
   const imageUrl = getImageUrl(currentImage)
   const imageAlt = currentImage.alternativeText || currentImage.name || "Hero image"
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      <Image src={imageUrl || "/placeholder.svg"} alt={imageAlt} fill className="object-cover" priority sizes="100vw" />
-      {/* Navigation Arrows */}
+      <Image
+        src={imageUrl}
+        alt={imageAlt}
+        fill
+        className="object-cover"
+        priority
+        sizes="100vw"
+      />
+
       <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 bg-black/30 hover:bg-black/50 rounded-full flex items-center justify-center transition-all duration-300 backdrop-blur-sm z-10"
