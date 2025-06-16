@@ -125,18 +125,12 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
   ];
 
   try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-
     const response = await fetch(`${baseURL}/api/homes?populate=*`, {
-      cache: "no-store",
-      signal: controller.signal,
+      next: { revalidate: 60 }, // Enables ISR (Incremental Static Regeneration)
       headers: {
         "Content-Type": "application/json",
       },
     });
-
-    clearTimeout(timeoutId);
 
     if (!response.ok) {
       throw new Error(`API error: ${response.status} ${response.statusText}`);
@@ -156,11 +150,7 @@ export async function getHomePageData(): Promise<CategoryCard[]> {
         `Discover our premium ${item.title?.toLowerCase() ?? "collection"} made with finest materials`,
     }));
   } catch (error) {
-    if (error instanceof Error && error.name === "AbortError") {
-      console.error("Request timed out or aborted");
-    } else {
-      console.error("Failed to fetch home page data:", error);
-    }
+    console.error("Failed to fetch home page data:", error);
     return fallbackData;
   }
 }
